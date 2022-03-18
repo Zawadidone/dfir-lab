@@ -70,7 +70,8 @@ sudo journalctl -u google-startup-scripts.service # show log for debugging purpo
 Sometimes Timesketch shows errors like shown below while upload timelines.
 
 ```bash
-[2022-03-17 21:16:27 +0000] [10] [ERROR] Socket error processing request.
+[2022-03-18 14:03:19,553] timesketch.lib.sigma/ERROR None # at the start
+[2022-03-17 21:16:27 +0000] [10] [ERROR] Socket error processing request. # after uploading timeline using the gui
 Traceback (most recent call last):
   File "/usr/local/lib/python3.8/dist-packages/gunicorn/workers/sync.py", line 134, in handle
     req = six.next(parser)
@@ -152,12 +153,15 @@ Scaling options
 * The applications Velociraptor and Timesketch are deployed using the Compute Engine. But these can also be deployed using Cloud Run for these custom Docker images with entry points that look like the startup scripts are needed.
 * Default all used VM instances have an outgoing internet connection to install software packages.
 * The Timesketch web instances can only use a single WSGI worker https://github.com/google/timesketch/issues/637
+* For production use change the Filestore tier to BASIC_SSD ([Velociraptor](modules/velociraptor/main.tf#L253), [Timesketch](modules/timesketch/main.tf#L87))
 
 ## ToDo
 
 * add processing module (GCP Pub/SUB).
 * Add CI build to Gitlab with different entry point which logs to stdout and stderr and check if the logs end up in Stackdriver. https://github.com/google/timesketch/blob/master/docker/release/build/docker-entrypoint.sh, https://docs.gunicorn.org/en/stable/settings.html#accesslog, https://docs.gunicorn.org/en/stable/settings.html#accesslog.
 * Stress test with compute-optimized instance types and SSD filestores.
-* scale Timesketch web and worker https://github.com/radeksimko/terraform-examples/blob/master/google-two-tier-scalable/main.tf#L72
+* Use auto scaling and healing for the Timesketch web and worker https://github.com/radeksimko/terraform-examples/blob/master/google-two-tier-scalable/main.tf#L72
 * Reacreate Velociraptor master and/or Timesketch web if unhealthy
 * Make sure the disk used by Velociraptor is not deleted after reboot and exit the startup script if the installation is already done.
+* Make the target size of Timesketch web and worker variable.
+* The Timesketch load balancer should return https:// instead of http:// in the response.
