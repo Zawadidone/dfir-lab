@@ -113,6 +113,13 @@ OSError: [Errno 107] Transport endpoint is not connected
 
 ## Components
 
+The project uses the following software packages with the corresponding licenses:
+
+| Project | License  |
+|---|---|
+| [Velociraptor](https://github.com/Velocidex/velociraptor)  | [ AGPLv3](https://github.com/Velocidex/velociraptor/blob/master/LICENSE)  |   |
+| [Timesketch](https://github.com/google/timesketch)  | [Apache License 2.0](https://github.com/google/timesketch/blob/master/LICENSE)  | 
+
 ### [Velociraptor](https://docs.velociraptor.app/docs/)
 
 The current setup only supports Velociraptor with a single node setup. But is possible to add minion nodes to the [frontend](
