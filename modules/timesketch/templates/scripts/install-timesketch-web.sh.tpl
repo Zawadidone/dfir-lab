@@ -16,7 +16,7 @@ sudo apt -y install docker-ce docker-ce-cli containerd.io
 #sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 #sudo chmod +x /usr/local/bin/docker-compose
   
-mkdir -p timesketch/{etc/timesketch,upload,logs}
+mkdir -p timesketch/{etc/timesketch/sigma/rules,upload,logs}
 
 # Wait for the File store NFS before installing Velociraptor
 wait-for-it ${file_share_ip_address}:111
