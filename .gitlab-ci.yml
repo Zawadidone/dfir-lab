@@ -1,0 +1,45 @@
+default:
+  image:
+    name: registry.gitlab.com/zawadidone/terrraform-image:stable
+    entrypoint: [""]
+
+variables:
+  TF_ROOT: ${CI_PROJECT_DIR}
+
+cache:
+  paths:
+    - ${TF_ROOT}/.terraform/
+    - ${TF_ROOT}/.terraform.lock.hcl
+
+stages:
+  - init
+  - validate
+  - plan
+  - apply
+
+terraform-get:
+  stage: init
+  script: 
+    - terraform init
+
+terraform-validate:
+  stage: validate
+  script:
+    - terraform validate
+    - terraform fmt
+
+#terraform-plan:
+#  stage: plan
+#  script: 
+#    - terraform plan -out plan -var-file=$environments.tfvars
+#  artifacts:
+#    name: plan
+#    paths:
+#      - ${TF_ROOT}/plan
+
+#terraform-apply:
+#  stage: apply
+#  only:
+#    - main
+#  script: 
+#    - terraform apply -auto-approve plan -var-file=$environments.tfvars
