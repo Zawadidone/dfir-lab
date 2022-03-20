@@ -46,4 +46,4 @@ wget -q -P clients https://github.com/Velocidex/velociraptor/releases/download/v
 wget -q -P clients https://github.com/Velocidex/velociraptor/releases/download/v${version}/velociraptor-v${version}-linux-amd64-centos
 wget -q -P clients https://github.com/Velocidex/velociraptor/releases/download/v${version}/velociraptor-v${version}-windows-amd64.exe
 wget -q -P clients https://github.com/Velocidex/velociraptor/releases/download/v${version}/velociraptor-v${version}-windows-amd64.msi
-gsutil -m cp -r clients/* ${bucket_uri}/velociraptor-clients
+gsutil -q -m cp -r clients/* ${bucket_uri}/velociraptor-clients
