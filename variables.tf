@@ -33,6 +33,11 @@ variable "velociraptor_file_store_size" {
   default = "2560"
 }
 
+variable "timesketch_version" {
+  description = "The Timesketch version"
+  default = "master"
+}
+
 variable "timesketch_file_store_size" {
   description = "The capacity of the Timesketch file store in GiB"
   default = "2560"
@@ -49,5 +54,10 @@ variable "gcp_timesketch_machine_type_web" {
 
 variable "gcp_timesketch_machine_type_worker" {
   description = "The machine type used by Timesketch workers"
+  default = "e2-small"
+}
+
+variable "gcp_plaso_machine_type" {
+  description = "The machine type used by Plaso"
   default = "e2-small"
 }

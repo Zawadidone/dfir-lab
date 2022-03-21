@@ -343,7 +343,6 @@ resource "google_compute_health_check" "default" {
   }
 }
 
-
 resource "google_compute_firewall" "default" {
   name          = "${var.project_name}-timesketch-allow-health-check"
   direction     = "INGRESS"

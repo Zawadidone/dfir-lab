@@ -39,6 +39,7 @@ module "timesketch" {
   elastic_cloud_api_key = var.elastic_cloud_api_key
   gcp_machine_type_web = var.gcp_timesketch_machine_type_web
   gcp_machine_type_worker = var.gcp_timesketch_machine_type_worker
+  timesketch_version = var.timesketch_version
   file_store_size = var.timesketch_file_store_size
 }
 
