@@ -172,7 +172,7 @@ resource "google_compute_backend_service" "default" {
 resource "google_compute_region_instance_group_manager" "web" {
   name     = "${var.project_name}-timesketch-web"
   base_instance_name = "${var.project_name}-timesketch-web"
-  target_size        = 1 # variable
+  target_size        = var.web_target_size
   
   named_port {
     name = "http"
@@ -189,7 +189,7 @@ resource "google_compute_region_instance_group_manager" "web" {
 resource "google_compute_region_instance_group_manager" "worker" {
   name     = "${var.project_name}-timesketch-worker"
   base_instance_name = "${var.project_name}-timesketch-worker"
-  target_size        = 1 # variable
+  target_size        = var.worker_target_size
   
   version {
     instance_template = google_compute_instance_template.worker.id

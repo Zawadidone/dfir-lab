@@ -40,6 +40,8 @@ module "timesketch" {
   gcp_machine_type_web = var.gcp_timesketch_machine_type_web
   gcp_machine_type_worker = var.gcp_timesketch_machine_type_worker
   timesketch_version = var.timesketch_version
+  web_target_size = var.timesketch_web_target_size
+  worker_target_size =  var.timesketch_worker_target_size
   file_store_size = var.timesketch_file_store_size
 }
 

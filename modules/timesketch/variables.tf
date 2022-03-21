@@ -42,6 +42,14 @@ variable "timesketch_version" {
   description = ""
 }
 
+variable "web_target_size" {
+  description = ""
+}
+
+variable "worker_target_size" {
+  description = ""
+}
+
 variable "file_store_size" {
   description = "The capacity of the file store in GiB"
 }

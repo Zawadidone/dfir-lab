@@ -43,6 +43,16 @@ variable "timesketch_file_store_size" {
   default = "2560"
 }
 
+variable "timesketch_web_target_size" {
+  description = ""
+  default = 1
+}
+
+variable "timesketch_worker_target_size" {
+  description = ""
+  default = 1
+}
+
 variable "elastic_cloud_api_key" {
   description = "The API key used by the Timesketch module"
 }
