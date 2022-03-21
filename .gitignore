@@ -33,3 +33,4 @@ terraform.rc
 # Personal
 testing/
 images/design.drawio
+modules/processing/templates/scripts/cloud-function.zip
