@@ -13,8 +13,6 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docke
   $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt update
 sudo apt -y install docker-ce docker-ce-cli containerd.io
-#sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-#sudo chmod +x /usr/local/bin/docker-compose
   
 mkdir -p timesketch/{etc/timesketch/sigma/rules,upload,logs}
 
@@ -42,11 +40,11 @@ echo "${timesketch_configuration}" > timesketch/etc/timesketch/timesketch.conf
 
 cd timesketch
 
-# NUM_WSGI_WORKERS=4 doesn't work https://github.com/google/timesketch/issues/637
+cores=$(nproc --all)
 
 sudo docker run --name timesketch-web -d \
   --restart no \
-  -e NUM_WSGI_WORKERS=1 \
+  -e NUM_WSGI_WORKERS=$((($cores*2) + 1)) \
   -v $(pwd)/etc/timesketch/:/etc/timesketch/ \
   -v $(pwd)/upload:/usr/share/timesketch/upload/ \
   -v $(pwd)/logs:/var/log/timesketch/ \
@@ -55,6 +53,8 @@ sudo docker run --name timesketch-web -d \
   us-docker.pkg.dev/osdfir-registry/timesketch/timesketch:latest \
   timesketch-web
 
+sleep 1
+sudo docker restart timesketch-web
 sleep 1
 
 sudo docker exec timesketch-web tsctl add_user -u admin -p ${timesketch_admin_password}

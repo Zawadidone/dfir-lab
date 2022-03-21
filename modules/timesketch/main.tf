@@ -283,6 +283,7 @@ resource "google_compute_instance_template" "web" {
     create_before_destroy = true
   }
   
+  # logging driver
   service_account {
     scopes = ["cloud-platform"]
   }
