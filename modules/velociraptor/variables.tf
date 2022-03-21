@@ -44,7 +44,7 @@ variable "velociraptor_master_ip_address" {
   default = "10.0.0.4"
 }
 
-variable "velociraptor_file_store_size" {
-  description = "The capacity of the Velociraptor file store in GiB"
+variable "file_store_size" {
+  description = "The capacity of the ile store in GiB"
 }
 

@@ -250,17 +250,17 @@ resource "google_filestore_instance" "default" {
   name           = "${var.project_name}-velociraptor"
   provider = google-beta
   description = "The filestore used by the Velociraptor master and minions"
-  tier = "BASIC_HDD" # use HIGH_SCALE_SSD or BASIC_SSD for production https://cloud.google.com/filestore/docs/creating-instances#allocating_capacity
+  tier = "BASIC_SSD"
   location = var.gcp_zone
 
   depends_on = [google_project_service.api_services, google_compute_subnetwork.velociraptor]
 
   file_shares {
     name = "file_store"
-    capacity_gb = var.velociraptor_file_store_size
+    capacity_gb = var.file_store_size
 
     nfs_export_options {
-      ip_ranges = ["10.0.0.0/24"]
+      ip_ranges =  [google_compute_subnetwork.velociraptor.ip_cidr_range]
     } 
   }
 

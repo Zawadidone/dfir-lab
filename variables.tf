@@ -30,7 +30,12 @@ variable "velociraptor_version" {
 
 variable "velociraptor_file_store_size" {
   description = "The capacity of the Velociraptor file store in GiB"
-  default = "1024"
+  default = "2560"
+}
+
+variable "timesketch_file_store_size" {
+  description = "The capacity of the Timesketch file store in GiB"
+  default = "2560"
 }
 
 variable "elastic_cloud_api_key" {

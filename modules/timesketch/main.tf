@@ -84,25 +84,23 @@ resource "google_filestore_instance" "default" {
   provider = google-beta
   project = var.gcp_project
   description = "The filestore used by Timesketch web and workers"
-  tier = "BASIC_HDD" # use HIGH_SCALE_SSD or BASIC_SSD for production https://cloud.google.com/filestore/docs/creating-instances#allocating_capacity
+  tier = "BASIC_SSD"
   location = var.gcp_zone
 
   depends_on = [google_project_service.api_services, google_compute_subnetwork.default]
 
   file_shares {
     name = "file_store"
-    #capacity_gb = var.velociraptor_file_store_size #########
-    capacity_gb = "1024"
+    capacity_gb = var.file_store_size
 
     nfs_export_options {
-      ip_ranges = ["10.0.2.0/24"] ################
+      ip_ranges =  [google_compute_subnetwork.default.ip_cidr_range]
     } 
   }
-
   networks {
-    network = var.project_name # use different variable
+    network = var.project_name
     modes   = ["MODE_IPV4"]
-    reserved_ip_range = "10.0.3.0/29" #######################
+    reserved_ip_range = "10.0.3.0/29"
   }
 }
 
@@ -326,7 +324,7 @@ resource "google_compute_instance_template" "worker" {
   lifecycle {
     create_before_destroy = true
   }
-  
+
   service_account {
     scopes = ["cloud-platform"]
   }
@@ -477,7 +475,6 @@ resource "google_compute_address" "elastic" {
   }
   
   resource "google_service_networking_connection" "default" {
-    provider = google-beta
     network                 = var.gcp_network
     depends_on = [google_project_service.api_services]
     service                 = "servicenetworking.googleapis.com"

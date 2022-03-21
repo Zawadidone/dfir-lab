@@ -41,3 +41,7 @@ variable "elastic_cloud_api_key" {
 variable "timesketch_version" {
   description = ""
 }
+
+variable "file_store_size" {
+  description = "The capacity of the file store in GiB"
+}

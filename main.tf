@@ -23,7 +23,7 @@ module "velociraptor" {
   gcp_lb_ip_address = google_compute_global_address.velociraptor.id
   domain_name      = "velociraptor.${var.domain_name}"
   velociraptor_version = var.velociraptor_version
-  velociraptor_file_store_size = var.velociraptor_file_store_size
+  file_store_size = var.velociraptor_file_store_size
 }
 
 
@@ -39,7 +39,7 @@ module "timesketch" {
   elastic_cloud_api_key = var.elastic_cloud_api_key
   gcp_machine_type_web = var.gcp_timesketch_machine_type_web
   gcp_machine_type_worker = var.gcp_timesketch_machine_type_worker
-  timesketch_version = "master" 
+  file_store_size = var.timesketch_file_store_size
 }
 
 resource "google_compute_network" "network" {
