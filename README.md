@@ -1,10 +1,22 @@
-# DFIR Lab (Still in development)
+[![pipeline status](https://gitlab.com/Zawadidone/dfir-lab/badges/main/pipeline.svg)](https://gitlab.com/Zawadidone/dfir-lab/commits/main)
+[![Cyberveiligheid](https://img.shields.io/badge/Cyberveiligheid-97%25-yellow.svg)](https://eurocyber.nl)
+# DFIR Lab
 
 **NOTE**: Before using this project in production please read the full Terraform configuration. This project is just a proof of concept for a school assignment made using a student account with free GCP credits and a few Velociraptor clients for testing purposes.
 
 The goal of this project is to create a DFIR Lab in the Cloud by using the elasticity, scalability and availability of Cloud services. I am a fan of GCP that's why I am using their services to deploy this lab, but this project can also be created for AWS, Azure or any other Cloud provider with a variation of Cloud services.
 
-The lab can be used in a case where you as an Incident Responder want to analyze Plaso Timelines of Windows systems. In the diagram below the flow is shown:
+The lab can be used in a case where you as an Incident Responder want to analyze Plaso Timelines of Windows systems. 
+
+1. Hunt for compromised systems using various of Velociraptor hunts (My favorite for ransomare investigations is the artifact [Windows.Search.FileFinder](https://velociraptor.velocidex.com/digging-for-files-with-velociraptor-a1c0a21e242b) to search for ransom notes).
+2. Acquire forensiscs artifacts of compromised systems with the Velociraptor artifact KapeFiles.Targets.
+3. Process the hunt collections with Plaso.
+4. Upload the timelines to Timesketch.
+5. Analyse the timelines in Timesketch.
+
+NOTE: Steps 2, 3 and 4 are performed independently of each other for each system using GCP Pub/Sub and Cloud Functions.
+
+In the diagram below the flow is shown:
 
 ![overview](images/dfir-lab.png)
 
@@ -38,15 +50,18 @@ Prerequisites:
     gcp_timesketch_machine_type_worker = "c2-standard-4"
     ````
 
-3. Log in to GCP: 
+3. Log in to GCP:
+
     `gcloud auth application-default login`
-4. Plan the Terraform configuration
+4. Plan the Terraform configuration.
+
     `terraform plan -var-file=environments.tfvars`
-5. Apple the Terraform configuration. The provisioning of the Google-managed certificates, File store's and SQL databases can take longer than 15 minutes
+5. Apple the Terraform configuration. The provisioning of the Google-managed certificates, File store's and SQL databases can take longer than 15 minutes.
+
     `terraform apply  -var-file=environments.tfvars`
-6. Set the external IP addresses used by Velociraptor and Timesketch in your DNS A records
-7. Add the [Private Service Connect](https://www.elastic.co/guide/en/cloud/current/ec-traffic-filtering-psc.html#ec-private-service-connect-allow-from-psc-connection-id) for Elasticsearch to the deployment
-8. Use the Velociraptor and Timesketch passwords to log in using the username admin
+6. Set the external IP addresses used by Velociraptor and Timesketch in your DNS A records.
+7. Add the [Private Service Connect](https://www.elastic.co/guide/en/cloud/current/ec-traffic-filtering-psc.html#ec-private-service-connect-allow-from-psc-connection-id) for Elasticsearch to the deployment.
+8. Use the Velociraptor and Timesketch passwords to log in using the username admin.
 
    ```bash
    terraform output velociraptor_password
@@ -54,62 +69,51 @@ Prerequisites:
    ```
 
 Because I use this project on GCP with limited credits I always destroy the configuration after developing it.
+
 `terraform destroy -var-file=environments.tfvars  -auto-approve`
 
-#### Debug issues
+### Debug issues
 
 If on of the compute instances doesn't work, because of a bug in the startup script. The service responsible for this can be shown like this:
 
 ```bash
 sudo journalctl -u google-startup-scripts.service # show log for debugging purposes
 /usr/bin/google_metadata_script_runner startup # execute startup script again
+sudo docker restart timesketch-web # restart timesketch which is stuck
 ```
 
 **Timesketch**
 
-Sometimes Timesketch shows errors like shown below while upload timelines.
+Sometimes Timesketch shows errors like shown below while uploading timelines.
 
 ```bash
 [2022-03-18 14:03:19,553] timesketch.lib.sigma/ERROR None # at the start
 [2022-03-17 21:16:27 +0000] [10] [ERROR] Socket error processing request. # after uploading timeline using the gui
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.8/dist-packages/gunicorn/workers/sync.py", line 134, in handle
-    req = six.next(parser)
-  File "/usr/local/lib/python3.8/dist-packages/gunicorn/http/parser.py", line 41, in __next__
-    self.mesg = self.mesg_class(self.cfg, self.unreader, self.req_count)
-  File "/usr/local/lib/python3.8/dist-packages/gunicorn/http/message.py", line 187, in __init__
-    super(Request, self).__init__(cfg, unreader)
-  File "/usr/local/lib/python3.8/dist-packages/gunicorn/http/message.py", line 54, in __init__
-    unused = self.parse(self.unreader)
-  File "/usr/local/lib/python3.8/dist-packages/gunicorn/http/message.py", line 236, in parse
-    self.headers = self.parse_headers(data[:idx])
-  File "/usr/local/lib/python3.8/dist-packages/gunicorn/http/message.py", line 74, in parse_headers
-    remote_addr = self.unreader.sock.getpeername()
-OSError: [Errno 107] Transport endpoint is not connected
 ```
 
 ### Start the hunts
 
-1. Login to Velociraptor
-2. Deploy Velociraptor [clients](https://docs.velociraptor.app/docs/deployment/clients/) using the configuration and executables added to the Google Storage Bucket in the folder `velociraptor-clients`.
-3. Open Server Event Monitoring and select the artefact Server.Utils.BackupGCS:
+1. Login to Timesketch and create a sketch with the ID 1.
+2. Login to Velociraptor.
+3. Deploy Velociraptor [clients](https://docs.velociraptor.app/docs/deployment/clients/) using the configuration and executables added to the Google Storage Bucket in the folder `velociraptor-clients`.
+4. Open Server Event Monitoring, select the artefact Server.Utils.BackupGCS and configure the following parameters:
     * ArtifactNameRegex: `Windows.KapeFiles.Targets`
     * Bucket: `Bucket name`
     * Project: `Project ID`
     * GCSKey: Add key to the service account `project_name-velociraptor` in GCP console and paste in the field. [https://velociraptor.velocidex.com/triage-with-velociraptor-pt-3-d6f63215f579](https://velociraptor.velocidex.com/triage-with-velociraptor-pt-3-d6f63215f579)
-4. Configure Hunt
-5. Select Artifact `Windows.KapeFiles.Targets`
-6. Select the following parameters:
+5. Configure Hunt
+6. Select Artifact `Windows.KapeFiles.Targets`
+7. Select the following parameters:
     * UseAutoAccessor
     * VSSAnalsyis
     * _SANS_Triage
     * DontBeLazy
-7. Specify the following Resources:
+8. Specify the following Resources:
     * Max Execution Time in Seconds: 999999999
-8. Review the hunt
-9. Launch and run the hunt
-10. ????
-11. Go to Timesketch and analyse the new timelines.
+9. Review the hunt
+10. Launch and run the hunt
+11. Wait before the Pub/Sub processing has processed the hunt collections and timelines
+12. Go to Timesketch and analyse the new timelines.
 
 ## Components
 
@@ -117,13 +121,13 @@ The project uses the following software packages with the corresponding licenses
 
 | Project | License  |
 |---|---|
-| [Velociraptor](https://github.com/Velocidex/velociraptor)  | [ AGPLv3](https://github.com/Velocidex/velociraptor/blob/master/LICENSE)  |   |
-| [Timesketch](https://github.com/google/timesketch)  | [Apache License 2.0](https://github.com/google/timesketch/blob/master/LICENSE)  | 
+| [Velociraptor](https://github.com/Velocidex/velociraptor) | [AGPLv3](https://github.com/Velocidex/velociraptor/blob/master/LICENSE)  |
+| [Timesketch](https://github.com/google/timesketch) | [Apache License 2.0](https://github.com/google/timesketch/blob/master/LICENSE) |
 
 ### [Velociraptor](https://docs.velociraptor.app/docs/)
 
 The current setup only supports Velociraptor with a single node setup. But is possible to add minion nodes to the [frontend](
-https://docs.velociraptor.app/docs/deployment/cloud/multifrontend/) backend services and add the single master tot the gui backend services. This way the clients connect to minions nodes (Frontend) and the analyst to the master node (GUI).
+https://docs.velociraptor.app/docs/deployment/cloud/multifrontend/) backend services and add the single master to the gui backend services. This way the clients connect to minions nodes (Frontend) and the analyst to the master node (GUI).
 
 Scaling options:
 
