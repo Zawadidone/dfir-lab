@@ -20,37 +20,37 @@ variable "domain_name" {
 
 variable "gcp_velociraptor_machine_type" {
   description = "The machine type used by Velociraptor"
-  default = "e2-small"
+  default     = "e2-small"
 }
 
 variable "velociraptor_version" {
-  description = "The used version of Velociraptor" 
-  default = "0.6.3"
+  description = "The used version of Velociraptor"
+  default     = "0.6.3"
 }
 
 variable "velociraptor_file_store_size" {
   description = "The capacity of the Velociraptor file store in GiB"
-  default = "2560"
+  default     = "2560"
 }
 
 variable "timesketch_version" {
   description = "The Timesketch version"
-  default = "master"
+  default     = "master"
 }
 
 variable "timesketch_file_store_size" {
   description = "The capacity of the Timesketch file store in GiB"
-  default = "2560"
+  default     = "2560"
 }
 
 variable "timesketch_web_target_size" {
   description = ""
-  default = 1
+  default     = 1
 }
 
 variable "timesketch_worker_target_size" {
   description = ""
-  default = 1
+  default     = 1
 }
 
 variable "elastic_cloud_api_key" {
@@ -59,15 +59,15 @@ variable "elastic_cloud_api_key" {
 
 variable "gcp_timesketch_machine_type_web" {
   description = "The machine type used by Timesketch web"
-  default = "e2-small"
+  default     = "e2-small"
 }
 
 variable "gcp_timesketch_machine_type_worker" {
   description = "The machine type used by Timesketch workers"
-  default = "e2-small"
+  default     = "e2-small"
 }
 
 variable "gcp_plaso_machine_type" {
   description = "The machine type used by Plaso"
-  default = "e2-small"
+  default     = "e2-small"
 }
