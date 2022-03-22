@@ -230,7 +230,7 @@ data "template_file" "web" {
   vars = {
     timesketch_configuration = data.template_file.configuration.rendered
     timesketch_version                   = var.timesketch_version
-    timesketch_admin_password = random_string.timesketch_admin_password.result
+    timesketch_admin_password = var.timesketch_password 
     file_share_ip_address     = google_filestore_instance.default.networks[0].ip_addresses[0]
     file_share_name           =  google_filestore_instance.default.file_shares[0].name
   }

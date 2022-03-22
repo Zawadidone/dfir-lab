@@ -42,6 +42,11 @@ variable "timesketch_version" {
   description = ""
 }
 
+variable "timesketch_password" {
+  description = ""
+  sensitive   = true
+}
+
 variable "web_target_size" {
   description = ""
 }
