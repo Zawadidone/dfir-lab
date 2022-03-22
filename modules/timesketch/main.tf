@@ -54,10 +54,10 @@ resource "google_sql_database_instance" "default" {
   region            = var.gcp_region
   database_version  = "POSTGRES_9_6"
   depends_on        = [google_project_service.api_services, google_service_networking_connection.default]
-  deletion_protection = false # variable
+  deletion_protection = false
 
   settings {
-    tier = "db-f1-micro" # variable
+    tier = "db-f1-micro"
     activation_policy = "ALWAYS"
     disk_autoresize = true
 
@@ -72,7 +72,7 @@ resource "google_sql_database_instance" "default" {
 
 resource "google_redis_instance" "default" {
   name           = "${var.project_name}-timesketch"
-  memory_size_gb = 1 # variable
+  memory_size_gb = 1 
   tier = "STANDARD_HA" 
   authorized_network = var.gcp_network
   depends_on        = [google_project_service.api_services]
