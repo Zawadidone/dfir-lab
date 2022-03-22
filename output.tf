@@ -1,6 +1,6 @@
 output "gcp_project" {
-    description = "The GCP project id"
-    value = var.gcp_project
+  description = "The GCP project id"
+  value       = var.gcp_project
 }
 
 output "external_ip_address_velociraptor" {
@@ -8,19 +8,19 @@ output "external_ip_address_velociraptor" {
 }
 
 output "velociraptor_url" {
-    description = "The URL to access velociraptor"
-    value = "https://${module.velociraptor.velociraptor_url}"
+  description = "The URL to access velociraptor"
+  value       = "https://${module.velociraptor.velociraptor_url}"
 }
 
 output "velociraptor_password" {
-    description = "The Velociraptor admin password"
-    value = module.velociraptor.velociraptor_password
-    sensitive = true
+  description = "The Velociraptor admin password"
+  value       = module.velociraptor.velociraptor_password
+  sensitive   = true
 }
 
 output "velociraptor_bucket_name" {
-    description = "The bucket used by Velociraptor"
-    value = "${var.project_name}-velociraptor"
+  description = "The bucket used by Velociraptor"
+  value       = "${var.project_name}-velociraptor"
 }
 
 output "external_ip_address_timeksetch" {
@@ -28,12 +28,12 @@ output "external_ip_address_timeksetch" {
 }
 
 output "timesketch_url" {
-    description = "The URL to access Timesketch"
-    value = module.timesketch.timesketch_url
+  description = "The URL to access Timesketch"
+  value       = module.timesketch.timesketch_url
 }
 
 output "timesketch_password" {
-    description = "The Timesketch admin password"
-    value = module.timesketch.timesketch_admin_password
-    sensitive = true
+  description = "The Timesketch admin password"
+  value       = module.timesketch.timesketch_admin_password
+  sensitive   = true
 }
