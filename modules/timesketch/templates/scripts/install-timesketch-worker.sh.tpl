@@ -5,7 +5,7 @@ set -e
 cloud-init status -w
 
 sudo apt update
-sudo apt-get install -y nfs-common wait-for-it iputils-ping ca-certificates curl gnupg lsb-release
+sudo apt install -y nfs-common wait-for-it iputils-ping ca-certificates curl gnupg lsb-release
 
 # Docker and Docker Compose installation
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
@@ -49,4 +49,3 @@ sudo docker run --name timesketch-worker -d \
   --log-driver=gcplogs \
   us-docker.pkg.dev/osdfir-registry/timesketch/timesketch:latest \
   timesketch-worker
-  

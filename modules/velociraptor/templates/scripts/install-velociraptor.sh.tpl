@@ -5,12 +5,12 @@ set -e
 cloud-init status -w
 
 ##### INSTALLATION OF PACKAGES
-sudo apt-get install -y apt-transport-https ca-certificates gnupg
+sudo apt install -y apt-transport-https ca-certificates gnupg
 echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
 curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-sudo apt-get update 
-sudo apt-get purge -y man-db # takes long don't know why
-sudo apt-get install -y google-cloud-sdk nfs-common wait-for-it iputils-ping
+sudo apt update 
+sudo apt purge -y man-db # takes long don't know why
+sudo apt install -y google-cloud-sdk nfs-common wait-for-it iputils-ping
 
 # Wait for the File store NFS before installing Velociraptor
 wait-for-it ${file_share_ip_address}:111
