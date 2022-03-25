@@ -8,9 +8,9 @@ The goal of this project is to create a DFIR Lab in the Cloud by using the elast
 
 The lab can be used in a case where you as an Incident Responder want to analyze Plaso Timelines of Windows systems. 
 
-1. Hunt for compromised systems using various of Velociraptor hunts (My favorite for ransomare investigations is the artifact [Windows.Search.FileFinder](https://velociraptor.velocidex.com/digging-for-files-with-velociraptor-a1c0a21e242b) to search for ransom notes).
+1. Hunt for compromised systems using various of Velociraptor hunts (My favorite for ransomware investigations is the artifact [Windows.Search.FileFinder](https://velociraptor.velocidex.com/digging-for-files-with-velociraptor-a1c0a21e242b) to search for ransom notes).
 2. Acquire forensiscs artifacts of compromised systems with the Velociraptor artifact KapeFiles.Targets.
-3. Process the hunt collections with Plaso.
+3. Process the forensic artifacts with Plaso.
 4. Upload the timelines to Timesketch.
 5. Analyse the timelines in Timesketch.
 
@@ -60,7 +60,7 @@ Prerequisites:
 
     `terraform apply  -var-file=environments.tfvars`
 6. Set the external IP addresses used by Velociraptor and Timesketch in your DNS A records.
-7. Add the [Private Service Connect](https://www.elastic.co/guide/en/cloud/current/ec-traffic-filtering-psc.html#ec-private-service-connect-allow-from-psc-connection-id) for Elasticsearch to the deployment.
+7. Add the [Private Service Connect id](https://www.elastic.co/guide/en/cloud/current/ec-traffic-filtering-psc.html#ec-private-service-connect-allow-from-psc-connection-id) for the Elasticsearch deployment.
 8. Use the Velociraptor and Timesketch passwords to log in using the username admin.
 
    ```bash
@@ -96,11 +96,11 @@ Sometimes Timesketch shows errors like shown below while uploading timelines.
 1. Login to Timesketch and create a sketch with the ID 1.
 2. Login to Velociraptor.
 3. Deploy Velociraptor [clients](https://docs.velociraptor.app/docs/deployment/clients/) using the configuration and executables added to the Google Storage Bucket in the folder `velociraptor-clients`.
-4. Open Server Event Monitoring, select the artefact Server.Utils.BackupGCS and configure the following parameters:
+4. Open Server Event Monitoring, select the artifact Server.Utils.BackupGCS and configure the following parameters:
     * ArtifactNameRegex: `Windows.KapeFiles.Targets`
     * Bucket: `Bucket name`
     * Project: `Project ID`
-    * GCSKey: Add key to the service account `project_name-velociraptor` in GCP console and paste in the field. [https://velociraptor.velocidex.com/triage-with-velociraptor-pt-3-d6f63215f579](https://velociraptor.velocidex.com/triage-with-velociraptor-pt-3-d6f63215f579)
+    * GCSKey: Add key to the service account `project_name`-velociraptor in GCP console and paste in the field. [https://velociraptor.velocidex.com/triage-with-velociraptor-pt-3-d6f63215f579](https://velociraptor.velocidex.com/triage-with-velociraptor-pt-3-d6f63215f579)
 5. Configure Hunt
 6. Select Artifact `Windows.KapeFiles.Targets`
 7. Select the following parameters:
@@ -139,7 +139,12 @@ Scaling options:
 
 ### Processing (Pub/Sub)
 
-TODO
+
+![processing-overview](images/processing.png)
+
+Scaling options:
+
+* Adjust the instance type used by Plaso 
 
 ### Timesketch
 
@@ -153,20 +158,19 @@ Scaling options
 
 ## Known issues or limitations
 
-* Elastic Traffic filter randomly disappears which breaks Timesketch. 
+* Use auto scaling and healing for the Timesketch web and worker ([https://github.com/radeksimko/terraform-examples/blob/master/google-two-tier-scalable/main.tf#L72]( https://github.com/radeksimko/terraform-examples/blob/master/google-two-tier-scalable/main.tf#L72)).
+* Increase memory used by Plaso in the modules processing and timesketch ([https://github.com/google/timesketch/blob/master/data/timesketch.conf#L171](https://github.com/google/timesketch/blob/master/data/timesketch.conf#L171)).
+* Elastic Traffic filter randomly disappears from the Elastic Cloud dashboard which breaks Timesketch, but can be resolved by setting the option again.
+* Use Velociraptor hunts for Linux and Mac OS systems which can be processed by Plaso.
 * Using this setup with 10k production clients to test the scaling of the used Cloud services and the processing Pub/Sub implementation.
 * Above [10-15K clients](https://velociraptor.velocidex.com/scaling-velociraptor-57acc4df76ed) the configuration should use the [multifrontend](https://docs.velociraptor.app/docs/deployment/cloud/multifrontend/) feature.
-* Place the Velociraptor GUI (`/gui/*`) and Timesketch behind a [Identity-Aware Proxy](https://cloud.google.com/iap).
-* Use Google OAuth SSO instead of a single admin user for [Velociraptor](https://docs.velociraptor.app/docs/deployment/cloud/#configuring-google-oauth-sso) and [Timesketch](https://github.com/google/timesketch/blob/master/data/timesketch.conf#L53).
-* Use Velociraptor hunts for Linux and Mac OS systems which can be processed by Plaso.
 * Add [Windows](https://github.com/Velocidex/velociraptor/blob/master/artifacts/definitions/Windows/Memory/Acquisition.yaml) and [Linux](https://docs.velociraptor.app/exchange/artifacts/pages/linuxmemoryacquisition/) memory hunts to Velociraptor and process this with the [Volatitiy Timeline feature](https://www.alexanderjaeger.de/autotimeliner-to-cyberchef-to-timesketch/).
-* Using Cloud Run/Kubernetes instead of the Compute Engine.
-* The applications Velociraptor and Timesketch are deployed using the Compute Engine. But these can also be deployed using Cloud Run for these custom Docker images with entry points that look like the startup scripts are needed.
 * Default all used VM instances have an outgoing internet connection to install software packages.
-* The Timesketch web instances can only use a single WSGI worker https://github.com/google/timesketch/issues/637
-* For production use change the Filestore tier to BASIC_SSD ([Velociraptor](modules/velociraptor/main.tf#L253), [Timesketch](modules/timesketch/main.tf#L87))
-
-## ToDo
+* Create VM images with the required packages already installed.
+* The startup scripts contain passwords.
+* Monitor the flow from the Velociraptor bucket until Timesketch with an alert if something fails in the processing.
+* The Timesketch load balancer HTTP response location returns http:// instead of https://
+* Add an object name prefix to the plaso timelines to exclude from Cloud function execution [https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_notification#object_name_prefix](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_notification#object_name_prefix).
 
 * add processing module (GCP Pub/SUB).
 * Add CI build to Gitlab with different entry point which logs to stdout and stderr and check if the logs end up in Stackdriver. https://github.com/google/timesketch/blob/master/docker/release/build/docker-entrypoint.sh, https://docs.gunicorn.org/en/stable/settings.html#accesslog, https://docs.gunicorn.org/en/stable/settings.html#accesslog.

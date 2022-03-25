@@ -26,6 +26,19 @@ module "velociraptor" {
   file_store_size      = var.velociraptor_file_store_size
 }
 
+module "processing" {
+  source              = "./modules/processing"
+  project_name        = var.project_name
+  gcp_project         = var.gcp_project
+  gcp_region          = var.gcp_region
+  gcp_zone            = var.gcp_zone
+  gcp_network         = google_compute_network.network.id
+  gcp_machine_type    = var.gcp_plaso_machine_type
+  timesketch_version  = var.timesketch_version
+  timesketch_password = random_string.timesketch_admin_password.result
+  bucket_name         = "${var.project_name}-velociraptor" # hardcoded module.velociraptor.google_storage_bucket.default.name
+  timesketch_web_internal = var.timesketch_web_internal
+}
 
 module "timesketch" {
   source                  = "./modules/timesketch"

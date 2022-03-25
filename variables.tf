@@ -53,6 +53,11 @@ variable "timesketch_worker_target_size" {
   default     = 1
 }
 
+variable "timesketch_web_internal" {
+  description = ""
+  default     = "10.0.2.10"
+}
+
 variable "elastic_cloud_api_key" {
   description = "The API key used by the Timesketch module"
 }
