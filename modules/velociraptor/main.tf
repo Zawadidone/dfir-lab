@@ -111,7 +111,8 @@ resource "google_compute_backend_service" "gui" {
 }
 
 resource "random_password" "velociraptor_password" {
-  length           = 16
+  length  = 16
+  special = false
 }
 
 data "template_file" "velociraptor_master_install" {
