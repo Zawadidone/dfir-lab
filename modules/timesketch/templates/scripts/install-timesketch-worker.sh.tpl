@@ -41,11 +41,11 @@ echo "${timesketch_configuration}" > timesketch/etc/timesketch/timesketch.conf
 cd timesketch
 
 sudo docker run --name timesketch-worker -d \
-  -e WORKER_LOG_LEVEL=info \
   --restart no \
   -v $(pwd)/etc/timesketch/:/etc/timesketch/ \
   -v $(pwd)/upload:/usr/share/timesketch/upload/ \
-  -v $(pwd)/logs:/var/log/timesketch/ \
   --log-driver=gcplogs \
+  --entrypoint "" \
   us-docker.pkg.dev/osdfir-registry/timesketch/timesketch:latest \
-  timesketch-worker
+  celery -A timesketch.lib.tasks worker \
+  --loglevel=info

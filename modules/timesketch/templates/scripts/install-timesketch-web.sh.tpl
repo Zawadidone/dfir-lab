@@ -44,14 +44,16 @@ cores=$(nproc --all)
 
 sudo docker run --name timesketch-web -d \
   --restart no \
-  -e NUM_WSGI_WORKERS=$((($cores*2) + 1)) \
   -v $(pwd)/etc/timesketch/:/etc/timesketch/ \
   -v $(pwd)/upload:/usr/share/timesketch/upload/ \
-  -v $(pwd)/logs:/var/log/timesketch/ \
   --log-driver=gcplogs \
+  --entrypoint "" \
   -p 5000:5000 \
   us-docker.pkg.dev/osdfir-registry/timesketch/timesketch:latest \
-  timesketch-web
+  gunicorn --bind 0.0.0.0:5000 \
+  --log-level info \
+  --capture-output --timeout 600 --limit-request-line 8190 \
+  --workers $((($cores*2) + 1)) timesketch.wsgi:application
 
 sleep 1
 sudo docker restart timesketch-web
