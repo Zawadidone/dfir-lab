@@ -34,6 +34,6 @@ output "timesketch_url" {
 
 output "timesketch_password" {
   description = "The Timesketch admin password"
-  value       = module.timesketch.timesketch_admin_password
+  value       = random_string.timesketch_admin_password.result
   sensitive   = true
 }
