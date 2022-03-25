@@ -171,12 +171,4 @@ Scaling options
 * Monitor the flow from the Velociraptor bucket until Timesketch with an alert if something fails in the processing.
 * The Timesketch load balancer HTTP response location returns http:// instead of https://
 * Add an object name prefix to the plaso timelines to exclude from Cloud function execution [https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_notification#object_name_prefix](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_notification#object_name_prefix).
-
-* add processing module (GCP Pub/SUB).
-* Add CI build to Gitlab with different entry point which logs to stdout and stderr and check if the logs end up in Stackdriver. https://github.com/google/timesketch/blob/master/docker/release/build/docker-entrypoint.sh, https://docs.gunicorn.org/en/stable/settings.html#accesslog, https://docs.gunicorn.org/en/stable/settings.html#accesslog.
-* Stress test with compute-optimized instance types and SSD filestores.
-* Use auto scaling and healing for the Timesketch web and worker https://github.com/radeksimko/terraform-examples/blob/master/google-two-tier-scalable/main.tf#L72
-* Reacreate Velociraptor master and/or Timesketch web if unhealthy
-* Make sure the disk used by Velociraptor is not deleted after reboot and exit the startup script if the installation is already done.
-* Make the target size of Timesketch web and worker variable.
-* The Timesketch load balancer should return https:// instead of http:// in the response.
+* The region of the Cloud function is [hardcoded](modules/processing/main.tf#L85).
