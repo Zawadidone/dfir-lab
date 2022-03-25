@@ -381,77 +381,58 @@ resource "google_compute_address" "elastic" {
     address_type = "INTERNAL"
   }
   
-  resource "google_compute_forwarding_rule" "elastic" {
-    name   = "psc-ilb-consumer-forwarding-rule"
-    region = var.gcp_region
+resource "google_compute_forwarding_rule" "elastic" {
+  name   = "psc-ilb-consumer-forwarding-rule"
+  region = var.gcp_region
+
+  target                = "projects/cloud-production-168820/regions/europe-west4/serviceAttachments/proxy-psc-production-europe-west4-v1-attachment"
+  load_balancing_scheme = "" # need to override EXTERNAL default when target is a service attachment
+  network               = var.gcp_network
+  ip_address            = google_compute_address.elastic.id
+}
   
-    target                = "projects/cloud-production-168820/regions/europe-west4/serviceAttachments/proxy-psc-production-europe-west4-v1-attachment"
-    load_balancing_scheme = "" # need to override EXTERNAL default when target is a service attachment
-    network               = var.gcp_network
-    ip_address            = google_compute_address.elastic.id
-  }
+resource "google_dns_managed_zone" "elastic" {
+  name        = "${var.project_name}-elastic"
+  dns_name    = "${var.gcp_region}.gcp.elastic-cloud.com."
+  description = "Example private DNS zone"
+  visibility = "private"
+  depends_on        = [google_project_service.api_services]
   
-  resource "google_dns_managed_zone" "elastic" {
-    name        = "${var.project_name}-elastic"
-    dns_name    = "${var.gcp_region}.gcp.elastic-cloud.com."
-    description = "Example private DNS zone"
-    visibility = "private"
-    depends_on        = [google_project_service.api_services]
-  
-    private_visibility_config {
-      networks {
-        network_url = var.gcp_network
-      }
+  private_visibility_config {
+    networks {
+      network_url = var.gcp_network
     }
   }
+}
   
-  resource "google_dns_record_set" "elastic" {
-    name = "*.${google_dns_managed_zone.elastic.dns_name}"
-    managed_zone = google_dns_managed_zone.elastic.name
-    type = "A"
-    ttl = 300
-    rrdatas = [google_compute_address.elastic.address]
-  }
+resource "google_dns_record_set" "elastic" {
+  name = "*.${google_dns_managed_zone.elastic.dns_name}"
+  managed_zone = google_dns_managed_zone.elastic.name
+  type = "A"
+  ttl = 300
+  rrdatas = [google_compute_address.elastic.address]
+}
   
-  data "ec_stack" "default" {
-    version_regex = "7.?.?"
-    region                 = "gcp-${var.gcp_region}"
-  }
+data "ec_stack" "default" {
+  version_regex = "7.?.?"
+  region        = "gcp-${var.gcp_region}"
+}
   
-  resource "ec_deployment" "default" {
-    name = "${var.project_name}"
-    provider = ec
-    region                 = "gcp-${var.gcp_region}"
-    version = data.ec_stack.default.version
-    deployment_template_id = "gcp-compute-optimized"
-    depends_on = [google_compute_forwarding_rule.elastic]
-  
-    elasticsearch {
-      #autoscale = "true" # create variable
-  
-      # 3 nodes hot_content 
-      topology {
-        id   = "hot_content"
-        size = "4g"
-        #zone_count = 3
-      }
-  
-        #autoscaling {
-            #min_size = "8g"
-          // max_size = "29g"
-        #}
+resource "ec_deployment" "default" {
+  name                   = "${var.project_name}"
+  provider               = ec
+  region                 = "gcp-${var.gcp_region}"
+  version                = data.ec_stack.default.version
+  deployment_template_id = "gcp-compute-optimized"
+  #traffic_filter        = [ec_deployment_traffic_filter.default.id]
+
+  elasticsearch {
+    topology {
+      id   = "hot_content"
+      size = "4g"
     }
-  
-  #  kibana {
-  #    topology {
-  #      id = "hot_content"
-  #      size = "2g"
-      #}
-  
-    #}
-  #  traffic_filter = [ec_deployment_traffic_filter.default.id]
   }
-  
+}
   # google_compute_forwarding_rule.elastic.psc_connection_id
   # To create a traffic filter and adding it to the deployement the elastic forwarding rules should return the PSC Connection ID
   # This is not possible see https://github.com/hashicorp/terraform-provider-google/issues/10588, https://cloud.google.com/compute/docs/reference/rest/v1/forwardingRules
@@ -466,17 +447,17 @@ resource "google_compute_address" "elastic" {
   #  }
   #}
   
-  resource "google_compute_global_address" "default" {
-    name          = "private-ip-address"
-    purpose       = "VPC_PEERING"
-    address_type  = "INTERNAL"
-    prefix_length = 24
-    network                 = var.gcp_network
-  }
+resource "google_compute_global_address" "default" {
+  name          = "private-ip-address"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 24
+  network                 = var.gcp_network
+}
   
-  resource "google_service_networking_connection" "default" {
-    network                 = var.gcp_network
-    depends_on = [google_project_service.api_services]
-    service                 = "servicenetworking.googleapis.com"
-    reserved_peering_ranges = [google_compute_global_address.default.name]
-  }
+resource "google_service_networking_connection" "default" {
+  network                 = var.gcp_network
+  depends_on = [google_project_service.api_services]
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.default.name]
+}
