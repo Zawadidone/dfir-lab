@@ -58,5 +58,7 @@ sudo docker run --name timesketch-web -d \
 sleep 1
 sudo docker restart timesketch-web
 sleep 1
+sudo docker restart timesketch-web
+sleep 1
 
 sudo docker exec timesketch-web tsctl add_user -u admin -p ${timesketch_admin_password}
