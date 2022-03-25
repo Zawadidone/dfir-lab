@@ -156,7 +156,7 @@ resource "google_compute_backend_service" "default" {
   timeout_sec              = 10
   health_checks            = [google_compute_health_check.default.id]
 
-  custom_response_headers         = ["X-Forwarded-Proto: https", "Test: test", "X-Cache-Hit: {cdn_cache_status}"]
+  custom_response_headers         = ["X-Forwarded-Proto: https"]
   backend {
     description = "This backend serves Timesketch web"
     balancing_mode  = "UTILIZATION"
