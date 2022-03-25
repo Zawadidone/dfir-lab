@@ -197,11 +197,6 @@ resource "google_compute_region_instance_group_manager" "worker" {
   }
 }
 
-resource "random_string" "timesketch_admin_password" {
-  length = 16
-  special = false
-}
-
 resource "random_string" "timesketch_secret_key" {
   length = 32
   special = false
@@ -250,7 +245,7 @@ data "template_file" "worker" {
 resource "google_compute_instance_template" "web" {
   name_prefix  = "${var.project_name}-timesketch-web"
   machine_type = var.gcp_machine_type_web
-  tags         = ["allow-health-check", "allow-iap"]
+  tags         = ["allow-health-check", "allow-iap", "allow-internal"]
 
   metadata_startup_script = data.template_file.web.rendered
 
@@ -303,7 +298,8 @@ resource "google_compute_instance_template" "worker" {
     google_filestore_instance.default,
     ec_deployment.default,
     google_sql_database_instance.default,
-    google_redis_instance.default
+    google_redis_instance.default,
+    google_compute_forwarding_rule.internal
   ]
 
   network_interface {
@@ -460,4 +456,86 @@ resource "google_service_networking_connection" "default" {
   depends_on = [google_project_service.api_services]
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.default.name]
+}
+
+resource "google_compute_subnetwork" "proxy_subnet" {
+  name          = "${var.project_name}-proxy-subnet"
+  ip_cidr_range = "10.0.5.0/24"
+  purpose       = "INTERNAL_HTTPS_LOAD_BALANCER"
+  role          = "ACTIVE"
+  network       = var.gcp_network
+}
+
+resource "google_compute_forwarding_rule" "internal" {
+  name          = "${var.project_name}-timesketch-internal"
+  ip_protocol           = "TCP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  port_range            = "80"
+  ip_address            = var.timesketch_web_internal
+  target                = google_compute_region_target_http_proxy.internal.id
+  network               = var.gcp_network
+  subnetwork            = google_compute_subnetwork.default.id 
+  network_tier          = "PREMIUM"
+
+  depends_on            = [google_compute_subnetwork.proxy_subnet]
+}
+
+resource "google_compute_region_target_http_proxy" "internal" {
+  name          = "${var.project_name}-timesketch-internal"
+  url_map  = google_compute_region_url_map.internal.id
+}
+
+resource "google_compute_region_url_map" "internal" {
+  name          = "${var.project_name}-timesketch-internal"
+  default_service = google_compute_region_backend_service.default.id
+
+  depends_on = [
+    google_compute_region_backend_service.default
+  ]
+}
+
+
+resource "google_compute_region_backend_service" "default" {
+  name                     = "${var.project_name}-timesketch-internal"
+  protocol                 = "HTTP"
+  port_name                = "http"
+  load_balancing_scheme    = "INTERNAL_MANAGED"
+  timeout_sec              = 10
+  health_checks            = [google_compute_region_health_check.default.id]
+
+  backend {
+    description = "This backend serves Timesketch web"
+    balancing_mode  = "UTILIZATION"
+    group           = google_compute_region_instance_group_manager.web.instance_group
+    capacity_scaler = 1.0
+  }
+  
+  log_config {
+    enable = true
+  }
+}
+
+resource "google_compute_region_health_check" "default" {
+  name     = "${var.project_name}-timesketch-internal"
+
+  http_health_check {
+    port = 5000
+    request_path = "/login/"
+  }
+
+  log_config {
+    enable = true
+  }
+}
+
+resource "google_compute_firewall" "fw-ilb-to-backends" {
+  name          = "${var.project_name}-timesketch-allow-proxy"
+  direction     = "INGRESS"
+  network       = var.gcp_network
+  source_ranges = [google_compute_subnetwork.proxy_subnet.ip_cidr_range]
+  target_tags   = ["allow-internal"]
+  allow {
+    protocol = "tcp"
+    ports    = ["5000"]
+  }
 }
