@@ -174,3 +174,4 @@ Scaling options
 * The Timesketch load balancer HTTP response location returns http:// instead of https://
 * Add an object name prefix to the plaso timelines to exclude from Cloud function execution [https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_notification#object_name_prefix](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_notification#object_name_prefix).
 * The region of the Cloud function is [hardcoded](modules/processing/main.tf#L85).
+* Add Buckets to upload CSV and JSON files with different formats [https://timesketch.org/guides/user/import-from-json-csv/](https://timesketch.org/guides/user/import-from-json-csv/).
