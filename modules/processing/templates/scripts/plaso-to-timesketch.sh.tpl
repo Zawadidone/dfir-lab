@@ -37,7 +37,7 @@ docker run --entrypoint "" -v $(pwd):/data --name plaso log2timeline/plaso log2t
 # Upload timeline to bucket as back-up
 gsutil -q cp $SYSTEM.plaso gs://$BUCKET_NAME/timelines/
 
-timesketch_importer -q -u "admin" -p "${TIMESKETCH_PASSWORD}" --host ${TIMESKETCH_URL} --timeline_name $SYSTEM --sketch_id 1 $SYSTEM.plaso
+timesketch_importer -q -u "admin" -p "${TIMESKETCH_PASSWORD}" --host ${TIMESKETCH_URL} --timeline_name $SYSTEM --sketch_id 1 $SYSTEM.plaso --context "Timesketch importer"
 
 # Delete instance
 #gcloud logging write batch-execution "Hello world from $(hostname)."
