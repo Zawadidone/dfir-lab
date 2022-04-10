@@ -23,7 +23,7 @@ output "velociraptor_bucket_name" {
   value       = "${var.project_name}-velociraptor"
 }
 
-output "external_ip_address_timeksetch" {
+output "external_ip_address_timesketch" {
   value = google_compute_global_address.timesketch.address
 }
 
