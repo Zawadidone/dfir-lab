@@ -53,7 +53,7 @@ sudo docker run --name timesketch-web -d \
   gunicorn --bind 0.0.0.0:5000 \
   --log-level info \
   --capture-output --timeout 600 --limit-request-line 8190 \
-  --workers $((($cores*2) + 1)) timesketch.wsgi:application
+  --workers 4 timesketch.wsgi:application
 
 sleep 1
 sudo docker restart timesketch-web
