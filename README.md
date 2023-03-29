@@ -1,5 +1,8 @@
+# THIS PROJECT IS ARCHIVED (see 'Known issues and limitations' before using the Terraform configuration)
+
 [![pipeline status](https://gitlab.com/Zawadidone/dfir-lab/badges/main/pipeline.svg)](https://gitlab.com/Zawadidone/dfir-lab/commits/main)
 [![Cyberveiligheid](https://img.shields.io/badge/Cyberveiligheid-97%25-yellow.svg)](https://eurocyber.nl)
+
 # DFIR Lab
 
 [Blogpost - Automating DFIR using Cloud services](https://zawadidone.nl/automating-dfir-using-cloud-services/)
@@ -158,7 +161,7 @@ Scaling options
 
 ![timesketch-overview](images/timesketch.png)
 
-## Known issues or limitations
+## Known issues and limitations
 
 * Use auto scaling and healing for the Timesketch web and worker ([https://github.com/radeksimko/terraform-examples/blob/master/google-two-tier-scalable/main.tf#L72]( https://github.com/radeksimko/terraform-examples/blob/master/google-two-tier-scalable/main.tf#L72)).
 * Increase memory used by Plaso in the modules processing and timesketch ([https://github.com/google/timesketch/blob/master/data/timesketch.conf#L171](https://github.com/google/timesketch/blob/master/data/timesketch.conf#L171)).
